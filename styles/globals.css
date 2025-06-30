@@ -1,0 +1,64 @@
+/* Import Inter font if not using next/font/google in _document.js or _app.js */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'); */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-white dark:bg-cod-gray-950 text-cod-gray-900 dark:text-cod-gray-100; /* Base background colors */
+    /* font-family: 'Inter', sans-serif; /* Apply Inter if not done via Next.js font */
+  }
+}
+
+/* Custom Scrollbar - Apple-esque */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3); /* Darker on hover for light mode */
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.3
+  ); /* Lighter on hover for dark mode */
+}
+
+/* Selection highlight color */
+::selection {
+  background-color: rgba(168, 85, 247, 0.3); /* Purple-ish */
+  color: inherit;
+}
+html.dark ::selection {
+  background-color: rgba(236, 72, 153, 0.3); /* Pink-ish for dark mode */
+}
+
+.prose a,
+.prose-invert a {
+  text-decoration: none;
+}
+.prose a:hover,
+.prose-invert a:hover {
+  text-decoration: underline;
+}
