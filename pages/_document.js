@@ -98,7 +98,7 @@ export default function Document() {
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="/favicon.png"
+          href="/favicon.png?v=2"
         ></link> {/* Example favicon path */}
       </Head>
       <body>
