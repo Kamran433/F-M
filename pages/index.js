@@ -7,7 +7,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { PAGE_DATA } from "../lib/home-page-data";
-import React, { useRef, Suspense, useMemo, isLoading } from "react";
+import React, { useRef, Suspense, useMemo, isLoading, memo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Stars,
@@ -53,12 +53,13 @@ const STAGGER_CONTAINER_VARIANTS = {
 };
 
 // --- 3D SCENES ---
-function BackgroundStars({ count = 5000 }) {
+function BackgroundStars({ count = 1500 }) {
+  // <-- Reduced count
   return (
     <Stars
       radius={100}
       depth={50}
-      count={count}
+      count={count} // Pass the reduced count here
       factor={5}
       saturation={0}
       fade
@@ -66,62 +67,67 @@ function BackgroundStars({ count = 5000 }) {
     />
   );
 }
+const DynamicAIGlobe = memo(() => {
+  const groupRef = useRef();
 
-const DynamicAIGlobe = () => {
-  const ref = useRef();
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    ref.current.rotation.y = t * 0.1;
-    ref.current.scale.setScalar(Math.sin(t * 0.5) * 0.1 + 1);
-  });
+  // The animation from useFrame was subtle and computationally unnecessary
+  // given that the <Float> component already provides excellent motion.
+  // By removing the useFrame hook, we stop forcing expensive calculations
+  // on every single frame.
+
   return (
-    <group ref={ref}>
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={1.5}>
-        <Icosahedron args={[2.2, 8]}>
-          <meshStandardMaterial
-            wireframe
-            color="#f472b6"
-            emissive="#db2777"
-            roughness={0.2}
-            metalness={0.8}
-          />
-        </Icosahedron>
-        <Icosahedron args={[1, 8]} scale={0.8} rotation-y={Math.PI / 4}>
-          <meshStandardMaterial
-            wireframe
-            color="#a855f7"
-            emissive="#a855f7"
-            roughness={0.1}
-            metalness={1}
-          />
-        </Icosahedron>
-      </Float>
-    </group>
+    // We can remove the outer <group> and apply the ref directly if needed,
+    // but the Float component is sufficient for managing motion.
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={1.5}>
+      {/* Reduced the subdivision detail from 8 to a more reasonable 4. */}
+      {/* This drastically cuts down the vertex count with minimal visual loss. */}
+      <Icosahedron args={[2.2, 4]} ref={groupRef}>
+        <meshStandardMaterial
+          wireframe
+          color="#f472b6"
+          emissive="#db2777"
+          roughness={0.2}
+          metalness={0.8}
+        />
+      </Icosahedron>
+      <Icosahedron args={[1, 4]} scale={0.8} rotation-y={Math.PI / 4}>
+        <meshStandardMaterial
+          wireframe
+          color="#a855f7"
+          emissive="#a855f7"
+          roughness={0.1}
+          metalness={1}
+        />
+      </Icosahedron>
+    </Float>
   );
-};
+});
 
-const InteractiveShape = ({ color }) => {
+const InteractiveShape = memo(({ color }) => {
   const meshRef = useRef();
-  const { viewport } = useThree(); // Gets screen dimensions
+  const { viewport } = useThree();
 
-  // This hook runs on every frame
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (meshRef.current) {
-      // Get mouse position (normalized from -1 to 1)
       const { mouse } = state;
-      const targetX = (mouse.x * viewport.width) / 8;
-      const targetY = (mouse.y * viewport.height) / 8;
 
-      // Smoothly interpolate the mesh rotation towards the mouse position
+      // We divide by a larger number to make the movement subtler and less demanding.
+      const targetX = (mouse.x * viewport.width) / 10;
+      const targetY = (mouse.y * viewport.height) / 10;
+
+      // By using delta time in our lerp factor, we ensure the animation
+      // is smooth and consistent across different screen refresh rates.
+      const lerpFactor = 1 - Math.exp(-0.1 * delta * 60);
+
       meshRef.current.rotation.y = THREE.MathUtils.lerp(
         meshRef.current.rotation.y,
         -targetX,
-        0.05
+        lerpFactor
       );
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
         -targetY,
-        0.05
+        lerpFactor
       );
     }
   });
@@ -129,31 +135,33 @@ const InteractiveShape = ({ color }) => {
   return (
     <group ref={meshRef}>
       <Float speed={1.5} rotationIntensity={0.8} floatIntensity={1.2}>
-        <TorusKnot args={[1.5, 0.5, 128, 32]} scale={0.8}>
-          {/* This is the new "amazing" material. It creates a glassy,
-            refractive look that's far more complex and beautiful.
+        {/*
+          Reduced the geometric complexity of the TorusKnot.
+          The original 128x32 segments are often overkill.
+          Halving them significantly reduces the number of vertices to compute.
+        */}
+        <TorusKnot args={[1.5, 0.5, 64, 16]}>
+          {/*
+            Optimized MeshTransmissionMaterial properties.
+            Turned off or reduced features that are computationally expensive.
+            Set `transmissionSampler` to false as it's a major performance hog.
           */}
           <MeshTransmissionMaterial
+            transmissionSampler={false} // Huge performance boost
             color={color}
-            emissive={color}
-            emissiveIntensity={2}
-            transmission={0.98} // How much light passes through (0-1)
-            roughness={0.05}
-            metalness={0.05}
-            ior={1.2} // Index of Refraction
+            transmission={0.98}
+            roughness={0.1}
             thickness={1.5}
-            chromaticAberration={0.06} // Adds rainbow-like color separation
-            anisotropy={0.1}
-            distortion={0.1}
-            distortionScale={0.1}
-            temporalDistortion={0.1}
+            ior={1.2}
+            chromaticAberration={0.03} // Reduced
+            distortionScale={0} // Disabled
+            temporalDistortion={0} // Disabled
           />
         </TorusKnot>
       </Float>
     </group>
   );
-};
-
+});
 const TestimonialScene = ({ color = "#8A2BE2" }) => {
   return (
     <>
