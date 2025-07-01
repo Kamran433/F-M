@@ -5,6 +5,7 @@ import {
   useTransform,
   useSpring,
 } from "framer-motion";
+
 import Link from "next/link";
 import { PAGE_DATA } from "../lib/home-page-data";
 import React, { useRef, Suspense, useMemo, isLoading, memo } from "react";
