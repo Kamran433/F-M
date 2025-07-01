@@ -8,7 +8,7 @@ const schemaData = {
   logo: "https://www.futuremoreai.com/images/your-logo.png", // <-- REPLACE
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "+91-YOUR-NUMBER-HERE", // <-- REPLACE
+    telephone: "+91-9797569227", // <-- REPLACE
     contactType: "customer service",
     email: "info.futuremore@gmail.com",
   },
