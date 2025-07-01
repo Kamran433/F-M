@@ -1,5 +1,4 @@
 import { Html, Head, Main, NextScript } from "next/document";
-
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "Organization",
