@@ -5,10 +5,9 @@ import {
   useTransform,
   useSpring,
 } from "framer-motion";
-
 import Link from "next/link";
 import { PAGE_DATA } from "../lib/home-page-data";
-import React, { useRef, Suspense, useMemo, isLoading, memo } from "react";
+import React, { useRef, Suspense, useMemo, isLoading, memo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Stars,
