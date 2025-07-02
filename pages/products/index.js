@@ -150,7 +150,7 @@ const VerificationDialog = ({ onVerify }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your.email@company.com"
+                placeholder="your.email@futuremoreai.com"
                 required
                 className="w-full pl-10 pr-4 py-3 text-gray-900 bg-white/80 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition duration-200 placeholder:text-gray-500 dark:text-white"
               />
